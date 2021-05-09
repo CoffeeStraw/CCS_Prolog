@@ -33,12 +33,11 @@ comment --> [C], {char_type(C, graph); char_type(C, white)}, !, comment.
 comment --> [C], {char_type(C, end_of_line)}, !, skip.
 
 % Alphanumeric string, it is used to parse variables and actions
-% Type should either be upper or lower
-str_an(RES, C1_TYPE) --> [C], str_an(S), {char_type(C, C1_TYPE), string_chars(RES, [C|S])}.
+str_an(Res, C1_Type) --> [C], str_an(S), {char_type(C, C1_Type), string_chars(Res, [C|S])}.
 str_an([C|S])        --> [C], {char_type(C, alnum)}, str_an(S), !.
 str_an([])           --> [].
 
-% Set string, it is used to parse sets of actions
+% String defining a set (e.g. {a,b}), it is used to parse sets of actions
 str_set(L) --> ['{'], skip, str_an(H, lower), skip, str_set_more(T), {append([H], T, L)}.
 str_set_more(L) --> [','], skip, str_an(H, lower), skip, str_set_more(T), {append([H], T, L)}.
 str_set_more([]) --> ['}'].
