@@ -1,7 +1,7 @@
 :- consult("../src/main.pl").
 
 :- begin_tests(var).
-var_parsing(S) :- atom_chars(S, C), phrase(atom(var(_)), C).
+var_parsing(S) :- atom_chars(S, C), phrase(atom_end(var(_)), C).
 test(var1)            :- var_parsing("A").
 test(var2)            :- var_parsing("AA").
 test(var3)            :- var_parsing("Aa").
@@ -32,15 +32,24 @@ test(out_fail3, fail) :- out_parsing("tau").
 
 :- begin_tests(expr).
 expr_parsing(S) :- atom_chars(S, C), phrase(expr(_), C).
-test(expr1)            :- expr_parsing("a").
+test(expr1)            :- expr_parsing("a.0").
 test(expr2)            :- expr_parsing("0").
-test(expr3)            :- expr_parsing("tau").
-test(expr4)            :- expr_parsing("a+b").
-test(expr5)            :- expr_parsing("a |        b").
-test(expr6)            :- expr_parsing("a    .0").
-test(expr7)            :- expr_parsing("a  *Comment\n  .0").
-test(expr8)            :- expr_parsing("a.0 + b.0").
-test(expr_fail1, fail) :- expr_parsing("00").
-test(expr_fail2, fail) :- expr_parsing("a + *Nothing").
-test(expr_fail3, fail) :- expr_parsing("a + b c").
+test(expr3)            :- expr_parsing("A").
+test(expr4)            :- expr_parsing("a.0+b.0").
+test(expr5)            :- expr_parsing("a.A |        b.0").
+test(expr6)            :- expr_parsing("a  *Comment\n  .AAAAAAAAA").
+test(expr_fail1, fail) :- expr_parsing("00").           % Not an atom
+test(expr_fail2, fail) :- expr_parsing("a + *Nothing"). % Missing something after +
+test(expr_fail3, fail) :- expr_parsing("a + b c").      % 'b c' is not an expression
 :- end_tests(expr).
+
+:- begin_tests(cmds).
+cmds_parsing(S) :- parsing(S, _).
+test(cmds1)            :- cmds_parsing("A = a.A;").
+test(cmds2)            :- cmds_parsing("Welcome    =\n\n at \n\n\n\n. *Useless comment\n   home.0;    *EndOfString").
+test(cmds3)            :- cmds_parsing("A = (a.0 + b.0 | c.A + d.A) + (e.A|f.0)     ;  ").
+test(cmds_fail1, fail) :- cmds_parsing("A = a").    % missing ;
+test(cmds_fail2, fail) :- cmds_parsing("A = a;").   % must end with 0 or a variable
+test(cmds_fail2, fail) :- cmds_parsing("a = a.0;"). % leftside not a variable
+test(cmds_fail3, fail) :- cmds_parsing("a + b;").   % not a command (no leftside)
+:- end_tests(cmds).
