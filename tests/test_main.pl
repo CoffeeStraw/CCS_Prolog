@@ -31,16 +31,20 @@ test(out_fail3, fail) :- out_parsing("tau").
 :- end_tests(out).
 
 :- begin_tests(expr).
-expr_parsing(S) :- atom_chars(S, C), phrase(expr(_), C).
+expr_parsing(S) :- atom_chars(S, C), phrase(expr(_, false), C).
 test(expr1)            :- expr_parsing("a.0").
 test(expr2)            :- expr_parsing("0").
 test(expr3)            :- expr_parsing("A").
 test(expr4)            :- expr_parsing("a.0+b.0").
 test(expr5)            :- expr_parsing("a.A |        b.0").
 test(expr6)            :- expr_parsing("a  *Comment\n  .AAAAAAAAA").
-test(expr_fail1, fail) :- expr_parsing("00").           % Not an atom
-test(expr_fail2, fail) :- expr_parsing("a + *Nothing"). % Missing something after +
-test(expr_fail3, fail) :- expr_parsing("a + b c").      % 'b c' is not an expression
+test(expr7)            :- expr_parsing("(a+b).0").
+test(expr7)            :- expr_parsing("(a.0|b.0) + c.0").
+test(expr_fail1, fail) :- expr_parsing("00").              % Not an atom
+test(expr_fail2, fail) :- expr_parsing("a + *Nothing").    % Missing something after +
+test(expr_fail3, fail) :- expr_parsing("a + b c").         % 'b c' is not an expression
+test(expr_fail4, fail) :- expr_parsing("a + b").           % a and b does not end with 0 or a variable
+test(expr_fail5, fail) :- expr_parsing("(a | b.X) + c.0"). % a does not end with 0 or a variable
 :- end_tests(expr).
 
 :- begin_tests(cmds).
@@ -53,3 +57,13 @@ test(cmds_fail2, fail) :- cmds_parsing("A = a;").   % must end with 0 or a varia
 test(cmds_fail2, fail) :- cmds_parsing("a = a.0;"). % leftside not a variable
 test(cmds_fail3, fail) :- cmds_parsing("a + b;").   % not a command (no leftside)
 :- end_tests(cmds).
+
+/*
+
+parse_and_derive("X = (a.b).c.0;", red(var('X'), A, T), D), derivation_to_tex(D, Latex), write_to_tex(Latex, 'test.tex').
+
+:- begin_tests(derivations).
+derive_pre(AST) :- derive_step(AST, A, S, D, _).
+test(der1) :- derive_pre(pre(in(a), pre(in(b), nil)), ).
+:- end_tests(derivations).
+*/
