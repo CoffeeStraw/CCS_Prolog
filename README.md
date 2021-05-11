@@ -1,5 +1,5 @@
 # CCS_Prolog
-Interpreter for **CCS** language *(Calculus of Communicating Systems)* written in [SWI-Prolog](https://www.swi-prolog.org/).
+Interpreter for [CCS](https://en.wikipedia.org/wiki/Calculus_of_communicating_systems) language *(Calculus of Communicating Systems)* written in [SWI-Prolog](https://www.swi-prolog.org/).
 
 Project for the **Principles for Software Composition course 2020/2021 @ UniPi**.
 
