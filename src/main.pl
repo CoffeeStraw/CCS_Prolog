@@ -34,19 +34,19 @@ expr_par(E, InPre)           --> expr_or(E, InPre).
 expr_or(or(E1, E2), InPre) --> expr_pre(E1, InPre), skip, ['+'], skip, expr_or(E2, InPre).
 expr_or(E, InPre)          --> expr_pre(E, InPre).
 
-expr_pre(E, InPre)                    --> expr_pre_sequence(E, InPre).
-expr_pre(E, InPre)                    --> expr_res(E, InPre).
-expr_pre_sequence(pre(E1, E2), InPre) --> ['('], skip, expr(E1, true), skip, [')'], skip, ['.'], skip, expr_pre_sequence(E2, InPre).
-expr_pre_sequence(pre(E1, E2), InPre) --> atom(E1), skip, ['.'], skip, expr_pre_sequence(E2, InPre).
-expr_pre_sequence(E, InPre)           --> expr_res(E, InPre).
+expr_pre(E, InPre)                       --> expr_pre_sequence(E, InPre).
+expr_pre(E, InPre)                       --> expr_res(E, InPre).
+expr_pre_sequence(pre(p(E1), E2), InPre) --> ['('], skip, expr(E1, true), skip, [')'], skip, ['.'], skip, expr_pre_sequence(E2, InPre).
+expr_pre_sequence(pre(E1, E2), InPre)    --> atom(E1), skip, ['.'], skip, expr_pre_sequence(E2, InPre).
+expr_pre_sequence(E, InPre)              --> expr_res(E, InPre).
 
 expr_res(res(E, S), InPre)      --> expr_brackets(E, InPre), skip, ['\\'], skip, str_set(S).
 expr_res(res(E, var(V)), InPre) --> expr_brackets(E, InPre), skip, ['\\'], skip, atom_end(var(V)).
 expr_res(E, InPre)              --> expr_brackets(E, InPre).
 
-expr_brackets(E, InPre) --> ['('], skip, expr(E, InPre), skip, [')'].
-expr_brackets(E, _)     --> atom_end(E).
-expr_brackets(E, true)  --> atom(E).
+expr_brackets(p(E), InPre) --> ['('], skip, expr(E, InPre), skip, [')'].
+expr_brackets(E, _)        --> atom_end(E).
+expr_brackets(E, true)     --> atom(E).
 
 atom_end(var(V)) --> atom(var(V)).
 atom_end(nil)    --> ['0'].
@@ -88,14 +88,14 @@ parse_and_derive(String, red(var(P),A,T), D) :- parsing(String, ASTs), derive(re
 derive(red(var(P),A,T), D, Defs) :- derive_step(var(P), A, T, [D], Defs).
 
 % DERIVATION FOR SINGLE STEPS
-% VAR: Perform one single step by performing a replacement
-derive_step(var(V), A, T, D, Defs) :- get_def(V, E, Defs),
-                                      derive_step(E, A, T, P, Defs),
-                                      D=[infer(rec, red(var(V), A, T), P)].
+derive_step(or(E1, E2), A, T, D, Defs)  :- derive_step(E1, A, T, P, Defs),
+                                           D=[infer(suml, red(or(E1, E2), A, T), P)].
+derive_step(or(E1, E2), A, T, D, Defs)  :- derive_step(E2, A, T, P, Defs),
+                                           D=[infer(sumr, red(or(E1, E2), A, T), P)].
 
 % PRE: Perform step(s) in E
-derive_step(pre(E, T1), A, T, D, Defs)  :- derive_step(E, A, T, P, Defs),
-                                           D=[infer(pre, red(pre(E, T1), A, pre(T, T1)), P)].
+derive_step(pre(E1, E2), A, T, D, Defs)  :- derive_step(E1, A, T, P, Defs),
+                                            D=[infer(pre, red(pre(E1, E2), A, pre(T, E2)), P)].
 % PRE: Reduce E to atom and then perform step(s) in T2
 derive_step(pre(E, T2), A, T, D, Defs)  :- derive_step(E, _, T1, P1, Defs),
                                            is_atom(T1),
@@ -108,6 +108,13 @@ derive_step(pre(A, T), A, T, D, _)      :- is_atom(A), D=[infer(pre, red(pre(A, 
 derive_step(pre(A1, T1), A, T, D, Defs) :- is_atom(A1), derive_step(T1, A, T, P, Defs),
                                            D=[infer(pre, red(pre(A1, T1), A, T), [P])].
 
+% PARENTHESIS
+derive_step(p(E), A, T, D, Defs) :- derive_step(E, A, T, D, Defs).
+
+% VAR: Perform one single step by performing a replacement
+derive_step(var(V), A, T, D, Defs) :- get_def(V, E, Defs),
+                                      derive_step(E, A, T, P, Defs),
+                                      D=[infer(rec, red(var(V), A, T), P)].
 
 % UTILITIES
 
@@ -143,10 +150,24 @@ derivation_to_tex([D1|D], Latex) :- derivation_to_tex(D1, D1_Latex),
 derivation_to_tex([], '{}').
 
 % Convert expressions in a more readable format compatible with LaTEX
+expr_to_latex(par(E1, E2), Latex) :- expr_to_latex(E1, E1_Latex),
+                                     expr_to_latex(E2, E2_Latex),
+                                     atom_concat(E1_Latex, ' | ', Res1),
+                                     atom_concat(Res1, E2_Latex, Latex).
+
+expr_to_latex(or(E1, E2), Latex) :- expr_to_latex(E1, E1_Latex),
+                                    expr_to_latex(E2, E2_Latex),
+                                    atom_concat(E1_Latex, ' + ', Res1),
+                                    atom_concat(Res1, E2_Latex, Latex).
+
 expr_to_latex(pre(E1, E2), Latex) :- expr_to_latex(E1, E1_Latex),
                                      expr_to_latex(E2, E2_Latex),
                                      atom_concat(E1_Latex, '.', Res1),
                                      atom_concat(Res1, E2_Latex, Latex).
+
+expr_to_latex(p(E), Latex) :- expr_to_latex(E, E_Latex),
+                              atom_concat('(', E_Latex, Res1),
+                              atom_concat(Res1, ')', Latex).
 
 expr_to_latex(nil, '0').
 expr_to_latex(tau, tau).
