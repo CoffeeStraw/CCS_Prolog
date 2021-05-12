@@ -4,9 +4,6 @@ Author: Antonio Strippoli (CoffeeStraw)
 License: MIT
 ===============================================================================================*/
 
-% Auxiliary predicate to check if two elements are the same.
-same(X,X).
-
 /*==============
      PARSER
 ==============*/
@@ -46,7 +43,7 @@ atom_end(nil)    --> ['0'].
 atom(tau)    --> ['t', 'a', 'u'].
 atom(var(V)) --> str_an(V, upper).
 atom(in(A))  --> str_an(A, lower).
-atom(out(A)) --> ['\''], str_an(A, lower), {not(same(A, tau))}.
+atom(out(A)) --> ['\''], str_an(A, lower), {A \== tau}.
 
 % UTILITIES
 % To skip during parsing: whitespaces and comments
@@ -123,7 +120,7 @@ get_def(V, E, [AST|ASTs]) :- AST=def_pro(V, E); AST=def_set(V, E); get_def(V, E,
 % Convert derivation in a more readable format compatible with LaTeX
 derivation_to_tex([D1|D], Latex) :-     derivation_to_tex(D1, D1_Latex),
                                         derivation_to_tex(D, D_Latex),
-                                        (same(D, []) -> Sep='' ; Sep=' \\qquad '),
+                                        (length(D, 0) -> Sep='' ; Sep=' \\qquad '),
                                         atomic_list_concat(['{', D1_Latex, '}', Sep, D_Latex], Latex).
 derivation_to_tex([], '').
 derivation_to_tex(infer(Name, Conclusion, P), Latex) :-     derivation_to_tex(P, P_Latex),
@@ -163,7 +160,7 @@ expr_to_tex(p(E), Latex) :-   expr_to_tex(E, E_Latex),
                               atom_concat('(', E_Latex, Res1),
                               atom_concat(Res1, ')', Latex).
 
-expr_to_tex(nil, '0').
+expr_to_tex(nil, '\\textbf{nil}').
 expr_to_tex(tau, '\\tau').
 expr_to_tex(var(V), V).
 expr_to_tex(in(A), A).
