@@ -31,14 +31,13 @@ test(out_fail3, fail) :- out_parsing("tau").
 :- end_tests(out).
 
 :- begin_tests(expr).
-expr_parsing(S) :- atom_chars(S, C), phrase(expr(_, false), C).
+expr_parsing(S) :- atom_chars(S, C), phrase(expr(_), C).
 test(expr1)            :- expr_parsing("a.0").
 test(expr2)            :- expr_parsing("0").
 test(expr3)            :- expr_parsing("A").
 test(expr4)            :- expr_parsing("a.0+b.0").
 test(expr5)            :- expr_parsing("a.A |        b.0").
 test(expr6)            :- expr_parsing("a  *Comment\n  .AAAAAAAAA").
-test(expr7)            :- expr_parsing("(a+b).0").
 test(expr7)            :- expr_parsing("(a.0|b.0) + c.0").
 test(expr_fail1, fail) :- expr_parsing("00").              % Not an atom
 test(expr_fail2, fail) :- expr_parsing("a + *Nothing").    % Missing something after +
