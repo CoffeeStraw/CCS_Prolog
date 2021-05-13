@@ -1,4 +1,4 @@
-:- consult("../src/main.pl").
+:- consult("../src/ccs.pl").
 
 :- begin_tests(var).
 var_parsing(S) :- atom_chars(S, C), phrase(atom_end(var(_)), C).
@@ -51,18 +51,11 @@ cmds_parsing(S) :- parsing(S, _).
 test(cmds1)            :- cmds_parsing("A = a.A;").
 test(cmds2)            :- cmds_parsing("Welcome    =\n\n at \n\n\n\n. *Useless comment\n   home.0;    *EndOfString").
 test(cmds3)            :- cmds_parsing("A = (a.0 + b.0 | c.A + d.A) + (e.A|f.0)     ;  ").
-test(cmds_fail1, fail) :- cmds_parsing("A = a").    % missing ;
-test(cmds_fail2, fail) :- cmds_parsing("A = a;").   % must end with 0 or a variable
-test(cmds_fail2, fail) :- cmds_parsing("a = a.0;"). % leftside not a variable
-test(cmds_fail3, fail) :- cmds_parsing("a + b;").   % not a command (no leftside)
+test(cmds4)            :- cmds_parsing("set S = {a,b,c};").
+test(cmds_fail1, fail) :- cmds_parsing("A = a").             % missing ;
+test(cmds_fail2, fail) :- cmds_parsing("A = a;").            % must end with 0 or a variable
+test(cmds_fail2, fail) :- cmds_parsing("a = a.0;").          % leftside not a variable
+test(cmds_fail3, fail) :- cmds_parsing("a + b;").            % not a command (no leftside)
+test(cmds_fail4, fail) :- cmds_parsing("S = {a,b,c};").      % missing 'set'
+test(cmds_fail5, fail) :- cmds_parsing("set S = {a,'b,c};"). % 'b is not the name of a channel
 :- end_tests(cmds).
-
-/*
-
-parse_and_derive("X = (a.b).c.0;", red(var('X'), A, T), D), derivation_to_tex(D, Latex), write_to_tex(Latex, 'test.tex').
-
-:- begin_tests(derivations).
-derive_pre(AST) :- derive_step(AST, A, S, D, _).
-test(der1) :- derive_pre(pre(in(a), pre(in(b), nil)), ).
-:- end_tests(derivations).
-*/
