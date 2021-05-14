@@ -60,7 +60,7 @@ expr_to_tex(out(A), Latex) :- atomic_list_concat(['\\overline{', A, '}'], Latex)
 
 % Write LaTeX content to file
 write_to_tex(Content, Path) :- open(Path, write, Out),
-                               write(Out, '\\documentclass[20pt]{extarticle}\n\\usepackage{proof}\n\\usepackage{amsmath}\n\\usepackage{amssymb}\n\n\\begin{document}\n\\[\n'),
+                               write(Out, '\\documentclass[10pt]{article}\n\\usepackage{proof}\n\\usepackage{amsmath}\n\\usepackage{amssymb}\n\n\\begin{document}\n\\[\n'),
                                write(Out, Content),
                                write(Out, '\\]\n\\end{document}'),
                                close(Out).

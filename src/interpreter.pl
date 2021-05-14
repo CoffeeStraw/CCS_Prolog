@@ -50,8 +50,8 @@ derive(p(E), A, T, D, Defs) :- derive(E, A, T, D, Defs).
 
 % Recursion via process constant
 derive(var(V), A, T, D, Defs) :- get_def(V, E, Defs),
-                                 P1=[infer('', in(V, E), [])],
-                                 derive(E, A, T, P2, Defs),
+                                 derive(E, A, T, P1, Defs),
+                                 P2=[infer('', in(V, E), [])],
                                  append(P1, P2, P),
                                  D=[infer(const, red(var(V), A, T), P)].
 

@@ -6,7 +6,7 @@ License: MIT
 
 % Parse a code written in CCS language, returning a list of Abstract Syntax Trees
 % NOTE: '\n' is appended to the string to allow comments as last line (since comments must end with '\n').
-parsing(String, Defs) :- atom_chars(String, Tmp), append(Tmp, ['\n'], Chars), phrase(cmds(Defs), Chars).
+parse(String, Defs) :- atom_chars(String, Tmp), append(Tmp, ['\n'], Chars), phrase(cmds(Defs), Chars).
 
 cmds([C|Cs]) --> skip, cmd(C), skip, !, cmds(Cs).
 cmds([])     --> [].
@@ -52,7 +52,7 @@ atom(out(A)) --> ['\''], str_an(A, lower), {A \== tau}.
 skip --> [W], {char_type(W, space)}, !, skip.
 skip --> ['*'], !, comment.
 skip --> [].
-comment --> [C], {char_type(C, graph); char_type(C, white)}, !, comment.
+comment --> [C], {char_type(C, graph); (char_type(C, space), \+ char_type(C, end_of_line))}, !, comment.
 comment --> [C], {char_type(C, end_of_line)}, !, skip.
 
 % Alphanumeric string, it is used to parse variables and actions
