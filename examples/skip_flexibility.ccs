@@ -1,0 +1,6 @@
+A = a.0; * I'm a comment. I must end with newline, but I can be put anywhere !"£$%&/()=?^é*ç°§;:_+àèòù,.-[]@#
+
+B    =    b  * This is a b
+            . * This is a .
+              0; * This is a 0
+* END OF FILE
