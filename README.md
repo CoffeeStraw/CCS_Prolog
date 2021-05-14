@@ -8,8 +8,8 @@ In addition to the parsing and execution of a CCS script, it is also possible to
 ## Project organization
 The source code has been split in 4 different files:
 - `/src/ccs.pl`: main file of the project, contains **macros** to use the interpreter more easily;
-- `/src/parser.pl`: contains dedicated functions to **parsing**. The allowed syntax is the one allowed by [CAAL](http://caal.cs.aau.dk/);
-- `/src/interpreter.pl`: contains the implementations of the **operational semantics**;
+- `/src/parser.pl`: **parsing** of a CCS code written using the same syntax allowed by [CAAL](http://caal.cs.aau.dk/);
+- `/src/interpreter.pl`: **operational semantics** of CCS;
 - `/src/utils.pl`: contains some utilities to write a derivation tree in **LaTeX**;
 
 ## Run
@@ -30,24 +30,21 @@ T = nil,
 D = infer(const, red(var('P'), in(done), nil), [infer(pre, red(pre(in(done), nil), in(done), nil), []), infer('', in('P', pre(in(done), nil)), [])]) .
 ```
 
+Where **A** is the action consumed in the step, **T** is the Target process after consuming A and **D** is the derivation tree.
+
 ### Run from file
-You can also put your code in a separated file and then use `execute_step_from_file` to run it. Suppose you have a file `test.ccs` containing some CCS code, you can run it using:
+You can also put your code in a separated file and then use `execute_step_from_file` to run it. Suppose you have a file `test.ccs` containing the CCS code written above, you can run it using:
 ```prolog
-execute_step_from_file('test.ccs', var('A'), A, T, D).
+execute_step_from_file('test.ccs', var('P'), A, T, D).
 ```
 
 ### Run more steps
 If you want to run more than one single step, you can use `execute` or `execute_from_file`.
 
 ### Write derivation in LaTeX
-To obtain a more readable derivation tree, you can write it in LaTeX using `write_derivation_to_tex`. As an example, consider the CCS program:
-```console
-A = (a.0 | 'a.0) \ {a};
-```
-
-The derivation tree terminating in `0 | 0` from `A` can be obtained in LaTeX using:
+To obtain a more readable derivation tree, you can write it in LaTeX using `write_derivation_to_tex`. An example usage of the predicate is the following:
 ```prolog
-execute_step("A = (a.0 | 'a.0) \\ {a};", var('A'), A, T, D), write_derivation_to_tex(D, 'out.tex').
+execute_step("P = (x.0 | 'x.0) \\ {x};", var('P'), A, T, D), write_derivation_to_tex(D, 'out.tex').
 ```
 
 ## Tests
