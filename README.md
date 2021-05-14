@@ -20,7 +20,7 @@ swipl -s src/ccs.pl
 
 To execute one step of your CCS code, you can use `execute_step`. Generally, you may want to pass your source code and the program starting point:
 ```prolog
-execute_step('P = done.0;', var('P'), A, T, D).
+execute_step("P = done.0;", var('P'), A, T, D).
 ```
 
 Which will produce:
@@ -37,7 +37,7 @@ execute_step_from_file('test.ccs', var('A'), A, T, D).
 ```
 
 ### Run more steps
-If you want to run more then one single step, you can use `execute` or `execute_from_file`.
+If you want to run more than one single step, you can use `execute` or `execute_from_file`.
 
 ### Write derivation in LaTeX
 To obtain a more readable derivation tree, you can write it in LaTeX using `write_derivation_to_tex`. As an example, consider the CCS program:
