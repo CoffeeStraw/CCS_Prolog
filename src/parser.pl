@@ -31,9 +31,13 @@ expr_pre(pre(E1, E2)) --> atom(E1), skip, ['.'], skip, expr_pre(E2).
 expr_pre(E)           --> expr_res(E).
 
 % Restriction
-expr_res(res(E, S))      --> expr_brackets(E), skip, ['\\'], skip, str_set(S).
-expr_res(res(E, var(V))) --> expr_brackets(E), skip, ['\\'], skip, atom_end(var(V)).
-expr_res(E)              --> expr_brackets(E).
+expr_res(res(E, S))      --> expr_rel(E), skip, ['\\'], skip, str_set(S).
+expr_res(res(E, var(V))) --> expr_rel(E), skip, ['\\'], skip, atom_end(var(V)).
+expr_res(E)              --> expr_rel(E).
+
+% Relabelling
+expr_rel(rel(E, Fi)) --> expr_brackets(E), skip, str_rel(Fi).
+expr_rel(E)          --> expr_brackets(E).
 
 % Parenthesis
 expr_brackets(p(E)) --> ['('], expr(E), [')'].
@@ -48,19 +52,24 @@ atom(in(A))  --> str_an(A, lower).
 atom(out(A)) --> ['\''], str_an(A, lower), {A \== tau}.
 
 % BASIC DCGs
+% String defining a set (e.g. {a,b}), it is used to parse sets of actions
+str_set(L) --> ['{'], skip, str_an(H, lower), skip, str_set_more(T), {append([H], T, L)}.
+str_set_more(L)  --> [','], skip, str_an(H, lower), skip, str_set_more(T), {append([H], T, L)}.
+str_set_more([]) --> ['}'].
+
+% String defining a relabelling (e.g. [a/b, c/d])
+str_rel(L) --> ['['], skip, str_an(H1, lower), skip, ['/'], skip, str_an(H2, lower), skip, str_rel_more(T), {append([(H1, H2)], T, L)}.
+str_rel_more(L)  --> [','], skip, str_an(H1, lower), skip, ['/'], skip, str_an(H2, lower), skip, str_rel_more(T), {append([(H1, H2)], T, L)}.
+str_rel_more([]) --> [']'].
+
+% Alphanumeric string, it is used to parse variables and actions
+str_an(Res, C1_Type) --> [C], str_an(S), {char_type(C, C1_Type), atom_string(Res, [C|S])}.
+str_an([C|S])        --> [C], {char_type(C, alnum); C='_'}, str_an(S), !.
+str_an([])           --> [].
+
 % To skip during parsing: whitespaces and comments
 skip --> [W], {char_type(W, space)}, !, skip.
 skip --> ['*'], !, comment.
 skip --> [].
 comment --> [C], {char_type(C, graph); (char_type(C, space), \+ char_type(C, end_of_line))}, !, comment.
 comment --> [C], {char_type(C, end_of_line)}, !, skip.
-
-% Alphanumeric string, it is used to parse variables and actions
-str_an(Res, C1_Type) --> [C], str_an(S), {char_type(C, C1_Type), atom_string(Res, [C|S])}.
-str_an([C|S])        --> [C], {char_type(C, alnum)}, str_an(S), !.
-str_an([])           --> [].
-
-% String defining a set (e.g. {a,b}), it is used to parse sets of actions
-str_set(L) --> ['{'], skip, str_an(H, lower), skip, str_set_more(T), {append([H], T, L)}.
-str_set_more(L)  --> [','], skip, str_an(H, lower), skip, str_set_more(T), {append([H], T, L)}.
-str_set_more([]) --> ['}'].

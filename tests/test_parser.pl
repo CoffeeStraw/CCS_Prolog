@@ -5,6 +5,7 @@ var_parse(S) :- atom_chars(S, C), phrase(atom_end(var(_)), C).
 test(var1)            :- var_parse("A").
 test(var2)            :- var_parse("AA").
 test(var3)            :- var_parse("Aa").
+test(var4)            :- var_parse("A_1").
 test(var_fail1, fail) :- var_parse("x").
 test(var_fail2, fail) :- var_parse("1X").
 test(var_fail3, fail) :- var_parse("xX").
@@ -15,6 +16,7 @@ in_parse(S) :- atom_chars(S, C), phrase(atom(in(_)), C).
 test(in1)            :- in_parse("a").
 test(in2)            :- in_parse("aa").
 test(in3)            :- in_parse("aA").
+test(in4)            :- in_parse("a_1").
 test(in_fail1, fail) :- in_parse("'a").
 test(in_fail2, fail) :- in_parse("A").
 test(in_fail3, fail) :- in_parse("0").
@@ -39,6 +41,8 @@ test(expr4)            :- expr_parse("a.0+b.0").
 test(expr5)            :- expr_parse("a.A |        b.0").
 test(expr6)            :- expr_parse("a  *Comment\n  .AAAAAAAAA").
 test(expr7)            :- expr_parse("(a.0|b.0) + c.0").
+test(expr8)            :- expr_parse("(a.b.0)   [   a/c,  b/d    ]").
+test(expr8)            :- expr_parse("(a.b.0) [a/c] \\ {a}").
 test(expr_fail1, fail) :- expr_parse("00").              % Not an atom
 test(expr_fail2, fail) :- expr_parse("a + *Nothing").    % Missing something after +
 test(expr_fail3, fail) :- expr_parse("a + b c").         % 'b c' is not an expression
