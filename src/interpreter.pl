@@ -4,11 +4,6 @@ Author: Antonio Strippoli (CoffeeStraw)
 License: MIT
 ===============================================================================================*/
 
-/* TODO
-- Check for recursion;
-- Check for guarded process?;
-*/
-
 % Derive an expression `E` (with variables defined in `Defs`) in the expression target `T`, consuming action `A`.
 % The derivation tree `D` is computed as a proof of the derivation.
 
