@@ -36,6 +36,7 @@ expr_res_rel(E)   --> expr_brackets(E).
 
 res_rel(E, AST)   --> skip, (res(E, AST1); rel(E, AST1)), !, res_rel(AST1, AST).
 res_rel(AST, AST) --> [].
+
 res(E, AST) --> ['\\'], skip, (str_set(S), {AST=res(E, S)}; atom_end(var(V)), {AST=res(E, var(V))}).
 rel(E, AST) --> str_rel(Fi), {AST=rel(E, Fi)}.
 
@@ -57,9 +58,9 @@ str_set(L) --> ['{'], skip, str_an(H, lower), skip, str_set_more(T), {append([H]
 str_set_more(L)  --> [','], skip, str_an(H, lower), skip, str_set_more(T), {append([H], T, L)}.
 str_set_more([]) --> ['}'].
 
-% String defining a relabelling (e.g. [a/b, c/d])
-str_rel(L) --> ['['], skip, str_an(H1, lower), skip, ['/'], skip, str_an(H2, lower), skip, str_rel_more(T), {append([(H1, H2)], T, L)}.
-str_rel_more(L)  --> [','], skip, str_an(H1, lower), skip, ['/'], skip, str_an(H2, lower), skip, str_rel_more(T), {append([(H1, H2)], T, L)}.
+% String defining a relabelling (e.g. [a/b, c/d]). 'tau' is not a suitable action name in a relabelling
+str_rel(L) --> ['['], skip, str_an(H1, lower), skip, ['/'], skip, str_an(H2, lower), skip, str_rel_more(T), {H1 \== tau, H2 \== tau, append([pair(H1, H2)], T, L)}.
+str_rel_more(L)  --> [','], skip, str_an(H1, lower), skip, ['/'], skip, str_an(H2, lower), skip, str_rel_more(T), {H1 \== tau, H2 \== tau, append([pair(H1, H2)], T, L)}.
 str_rel_more([]) --> [']'].
 
 % Alphanumeric string, it is used to parse variables and actions
