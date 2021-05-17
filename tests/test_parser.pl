@@ -39,10 +39,11 @@ test(expr2)            :- expr_parse("0").
 test(expr3)            :- expr_parse("A").
 test(expr4)            :- expr_parse("a.0+b.0").
 test(expr5)            :- expr_parse("a.A |        b.0").
-test(expr6)            :- expr_parse("a  *Comment\n  .AAAAAAAAA").
+test(expr6)            :- expr_parse("a  *Commentàèìòù\n  .AAAAAAAAA").
 test(expr7)            :- expr_parse("(a.0|b.0) + c.0").
 test(expr8)            :- expr_parse("(a.b.0)   [   a/c,  b/d    ]").
-test(expr8)            :- expr_parse("(a.b.0) [a/c] \\ {a}").
+test(expr9)            :- expr_parse("(a.b.0) [a/c] \\ {a}").
+test(expr10)           :- expr_parse("(a.b.0) \\ {a} [a/c]").
 test(expr_fail1, fail) :- expr_parse("00").              % Not an atom
 test(expr_fail2, fail) :- expr_parse("a + *Nothing").    % Missing something after +
 test(expr_fail3, fail) :- expr_parse("a + b c").         % 'b c' is not an expression

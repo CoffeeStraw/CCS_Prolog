@@ -28,16 +28,16 @@ expr_or(E)          --> expr_pre(E).
 
 % Action prefix
 expr_pre(pre(E1, E2)) --> atom(E1), skip, ['.'], skip, expr_pre(E2).
-expr_pre(E)           --> expr_res(E).
+expr_pre(E)           --> expr_res_rel(E).
 
 % Restriction
-expr_res(res(E, S))      --> expr_rel(E), skip, ['\\'], skip, str_set(S).
-expr_res(res(E, var(V))) --> expr_rel(E), skip, ['\\'], skip, atom_end(var(V)).
-expr_res(E)              --> expr_rel(E).
+expr_res_rel(AST) --> expr_brackets(E), res_rel(E, AST).
+expr_res_rel(E)   --> expr_brackets(E).
 
-% Relabelling
-expr_rel(rel(E, Fi)) --> expr_brackets(E), skip, str_rel(Fi).
-expr_rel(E)          --> expr_brackets(E).
+res_rel(E, AST)   --> skip, (res(E, AST1); rel(E, AST1)), !, res_rel(AST1, AST).
+res_rel(AST, AST) --> [].
+res(E, AST) --> ['\\'], skip, (str_set(S), {AST=res(E, S)}; atom_end(var(V)), {AST=res(E, var(V))}).
+rel(E, AST) --> str_rel(Fi), {AST=rel(E, Fi)}.
 
 % Parenthesis
 expr_brackets(p(E)) --> ['('], expr(E), [')'].
