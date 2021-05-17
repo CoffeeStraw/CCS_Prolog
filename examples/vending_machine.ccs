@@ -1,0 +1,5 @@
+* Vending machine taking a coin for a coffee
+* Actions are translated in italian using relabelling
+
+VM = 'coin.coffee.0;
+VM_ita = VM [moneta/coin, caffe/coffee] \ {antonio}; * Note, actions' name and variables' name can also contain underscores
