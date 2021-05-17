@@ -1,0 +1,5 @@
+* Example of a variable storing true or false
+
+B_empty = in_true.B_true + in_false.B_false;
+B_true = 'out_true.B_empty;
+B_false = 'out_false.B_empty;
